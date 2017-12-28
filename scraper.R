@@ -35,9 +35,28 @@ for (page in 1:pages)
 		history <- iconv(paste0(readLines(url, encoding="CP949"), collapse="\n"), to="UTF-8")
 		musicals <- xpathSApply(htmlParse(history, isHTML=T, asText=T, encoding="UTF-8"), "//td[@class='ptitle']", xmlValue)
 		dates <- xpathSApply(htmlParse(history, isHTML=T, asText=T, encoding="UTF-8"), "//td[@class='time']", xmlValue)
-		
+
+		#get workcodes
+		work_data <- readLines(url, warn=FALSE)
+		work_data <- paste(work_data, collapse = ' ')
+		code_starting_indices <- as.vector(gregexpr("dbDetail.asp?", work_data)[[1]])+24 #even only
+		code_ending_indices <- as.vector(gregexpr("target=\"_parent\"><", work_data)[[1]])-3
+		codes <- {}
+		scores <- {}
+		for (k in 1:(length(code_starting_indices)/2))
+		{
+			code <- substr(work_data, code_starting_indices[k*2-1], code_ending_indices[k])
+			codes <- append(codes, code)
+			
+			#get scores
+			url <- paste0("http://www.playdb.co.kr/playdb/playdbDetail.asp?sReqPlayno=", code)
+			score <- iconv(paste0(readLines(url, encoding="CP949", warn=FALSE), collapse="\n"), to="UTF-8")
+			score <- xpathSApply(htmlParse(score, isHTML=T, asText=T, encoding="UTF-8"), "//dd[@class='score']", xmlValue)
+			scores <- append(scores, score[1])
+		}
+
 		#format data
-		block <- cbind(id, name, musicals, dates)
+		block <- cbind(id, name, musicals, codes, dates, scores)
 		
 		#append
 		output <- rbind.fill(as.data.frame(output), as.data.frame(block))
