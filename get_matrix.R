@@ -1,12 +1,17 @@
+#vector of unique artists, by their ids
 artists <- unique(output_final$id)
+
+#vector of unique plays, by their ids
 musicals <- unique(output_final$codes)
+
+#matrix of plays by artists, again by their ids
 mat <- matrix(0,length(musicals),length(artists))
 
+#naming the cols and rows
 colnames(mat) <- artists
 rownames(mat) <- musicals
 
-i <- 1
-j <- 1
+#start filling in the matrix
 for (i in 1:length(musicals))
 {
   for (j in 1:length(artists))
@@ -22,6 +27,8 @@ for (i in 1:length(musicals))
 score_mat <- {}
 time_i_mat <- {}
 time_f_mat <- {}
+
+#create three vectors, of scores, date of premiere, and date of the last perforrmance, respectively
 for (musical in musicals)
 {
   i <- which(output_final$codes == musical)[1]
